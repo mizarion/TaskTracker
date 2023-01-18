@@ -1,13 +1,12 @@
 package com.consist.task.repository.batch;
 
 import com.consist.task.model.entity.TaskParameter;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-public class InsertParamBPS implements BatchPreparedStatementSetter {
+public class InsertParamBPS extends AbstractBPS {
 
     public static final String SQL = "INSERT INTO taskparameters (type, param_name, value, task_id) VALUES (?,?,?,?)";
 
@@ -39,5 +38,10 @@ public class InsertParamBPS implements BatchPreparedStatementSetter {
     @Override
     public int getBatchSize() {
         return allParams.size();
+    }
+
+    @Override
+    public String getSQL() {
+        return SQL;
     }
 }

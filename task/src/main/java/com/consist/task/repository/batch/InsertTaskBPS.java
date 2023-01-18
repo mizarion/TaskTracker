@@ -1,14 +1,13 @@
 package com.consist.task.repository.batch;
 
 import com.consist.task.model.entity.TaskEntity;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 
-public class InsertTaskBPS implements BatchPreparedStatementSetter {
+public class InsertTaskBPS extends AbstractBPS {
 
     public static final String SQL = "INSERT INTO consisttask (task_id, status, name, parent_id) VALUES (?,?,?,?)";
 
@@ -33,5 +32,10 @@ public class InsertTaskBPS implements BatchPreparedStatementSetter {
     @Override
     public int getBatchSize() {
         return allTasks.size();
+    }
+
+    @Override
+    public String getSQL() {
+        return SQL;
     }
 }

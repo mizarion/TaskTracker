@@ -1,14 +1,12 @@
 package com.consist.task.repository.batch;
 
 import com.consist.task.model.entity.TaskParameter;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-public class DeleteParamBPS implements BatchPreparedStatementSetter {
-
+public class DeleteParamBPS extends AbstractBPS {
 
     public static final String SQL = "DELETE FROM taskparameters WHERE task_id = ? AND type=? AND param_name = ? AND value = ?";
 
@@ -31,6 +29,11 @@ public class DeleteParamBPS implements BatchPreparedStatementSetter {
     @Override
     public int getBatchSize() {
         return deleteParams.size();
+    }
+
+    @Override
+    public String getSQL() {
+        return SQL;
     }
 }
 

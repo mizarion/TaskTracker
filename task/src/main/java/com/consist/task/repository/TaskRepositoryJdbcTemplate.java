@@ -12,7 +12,6 @@ import com.consist.task.repository.batch.InsertParamBPS;
 import com.consist.task.repository.batch.InsertTaskBPS;
 import com.consist.task.repository.specification.TaskSpecification;
 import com.consist.task.repository.specification.TaskSpecificationById;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -37,13 +36,13 @@ public class TaskRepositoryJdbcTemplate implements TaskRepository {
     }
 
     private static final String SELECT_TASK_RECURSIVE = "WITH RECURSIVE gettask(task_id, name, status, parent_id) AS (\n" +
-            "    SELECT t1.task_id, t1.name, t1.status, t1.parent_id " +
-            "    FROM consisttask t1 WHERE t1.task_id = ?" +
-            "  UNION \n" +
-            "    SELECT t2.task_id, t2.name, t2.status, t2.parent_id \n" +
-            "    FROM consisttask t2 join gettask on (gettask.task_id = t2.parent_id) " +
-            "  )\n" +
-            "SELECT * FROM gettask";
+                                                        "    SELECT t1.task_id, t1.name, t1.status, t1.parent_id " +
+                                                        "    FROM consisttask t1 WHERE t1.task_id = ?" +
+                                                        "  UNION \n" +
+                                                        "    SELECT t2.task_id, t2.name, t2.status, t2.parent_id \n" +
+                                                        "    FROM consisttask t2 join gettask on (gettask.task_id = t2.parent_id) " +
+                                                        "  )\n" +
+                                                        "SELECT * FROM gettask";
 
     @Override
     public List<TaskEntity> query(TaskSpecification taskSpecification) {
@@ -121,35 +120,42 @@ public class TaskRepositoryJdbcTemplate implements TaskRepository {
         jdbcTemplate.batchUpdate(InsertParamBPS.SQL, new InsertParamBPS(insertParams, id));
     }
 
-    private void update(TaskEntity source, TaskEntity updated) {
-        if (!source.getStatus().equals(updated.getStatus()) || !source.getTaskName().equals(updated.getTaskName())) {
-            jdbcTemplate.update("UPDATE consisttask SET status=?, name=? WHERE task_id=?",
-                    updated.getStatus().name(), updated.getTaskName(), updated.getId());
-        }
-
-        updateParams(updated.getId(), source.getTaskParameters(), updated.getTaskParameters());
-
-        List<TaskEntity> toDelete = new ArrayList<>();
-        for (TaskEntity d : TaskUtils.getIntersectionById(source.getSubTasks(), updated.getSubTasks()).getLeft()) {
-            toDelete.addAll(TaskUtils.taskTree2List(d));
-        }
-        jdbcTemplate.batchUpdate(DeleteTaskByIdBPS.SQL, new DeleteTaskByIdBPS(toDelete));
-
-        Pair<List<TaskEntity>, List<Pair<TaskEntity, TaskEntity>>> intersectionById = TaskUtils.getIntersectionById(updated.getSubTasks(), source.getSubTasks());
-
-        for (TaskEntity c : intersectionById.getLeft()) {
-            c.setParent(updated.getId());
-            create(c);
-        }
-        for (Pair<TaskEntity, TaskEntity> c : intersectionById.getRight()) {
-            update(c.getRight(), c.getLeft());
-        }
-    }
-
     @Override
     public void update(TaskEntity taskEntity) {
-        TaskEntity source = this.query(new TaskSpecificationById(taskEntity.getId())).get(0);
-        update(source, taskEntity);
+        List<TaskEntity> dbTasks = TaskUtils.taskTree2List(query(new TaskSpecificationById(taskEntity.getId())).get(0));
+        List<TaskEntity> newTasks = TaskUtils.taskTree2List(taskEntity);
+        for (TaskEntity task : newTasks) {
+            for (TaskParameter param : task.getTaskParameters()) {
+                param.setTaskId(task.getId());
+            }
+        }
+        // delete
+        List<TaskEntity> toDelete = TaskUtils.getNonIntersectionById(dbTasks, newTasks);
+        jdbcTemplate.batchUpdate(DeleteTaskByIdBPS.SQL, new DeleteTaskByIdBPS(toDelete));
+
+        // create
+        List<TaskEntity> toInsert = TaskUtils.getNonIntersectionById(newTasks, dbTasks);
+        List<TaskParameter> toInsertParams = new ArrayList<>();
+        for (TaskEntity task : toInsert) {
+            toInsertParams.addAll(task.getTaskParameters());
+        }
+
+        jdbcTemplate.batchUpdate(InsertTaskBPS.SQL, new InsertTaskBPS(toInsert));
+        jdbcTemplate.batchUpdate(InsertParamBPS.SQL, new InsertParamBPS(toInsertParams));
+        // update
+        for (TaskEntity newSubtask : newTasks) {
+            for (TaskEntity dbSubtask : dbTasks)
+                if (newSubtask.getId().equals(dbSubtask.getId())) {
+                    if (!dbSubtask.getTaskParameters().equals(newSubtask.getTaskParameters())) {
+                        updateParams(newSubtask.getId(), dbSubtask.getTaskParameters(), newSubtask.getTaskParameters());
+                    }
+                    if (!dbSubtask.getStatus().equals(newSubtask.getStatus())
+                        || !dbSubtask.getTaskName().equals(newSubtask.getTaskName())) {
+                        jdbcTemplate.update("UPDATE consisttask SET status=?, name=? WHERE task_id=?",
+                                newSubtask.getStatus().name(), newSubtask.getTaskName(), newSubtask.getId());
+                    }
+                }
+        }
     }
 
     @Override

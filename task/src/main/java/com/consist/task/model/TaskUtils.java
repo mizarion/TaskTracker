@@ -2,8 +2,6 @@ package com.consist.task.model;
 
 import com.consist.task.model.entity.TaskEntity;
 import com.consist.task.model.entity.TaskParameter;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,32 +76,26 @@ public class TaskUtils {
         return new TaskEntity(root.getId(), root.getStatus(), root.getTaskName(), parameters, subtasks);
     }
 
-
     /**
-     * Проходит по переданным множествам и сравнивает задачи по id.
-     * Если id совпали, добавляет две совпавшие задачи во второй возвращаемый список.
-     * Если задачи с таким id из первого множества нет во втором, то добавляется в первый возвращаемый список
+     * Находит в переданных множествах НЕ пересечения по id.
      *
      * @param lhs Множество из которого проверяются задачи во втором множестве
      * @param rhs Множество, содержащее проверяемые задачи.
      * @return Задачи из первого множества, которых нет во втором.
      */
-    public static Pair<List<TaskEntity>, List<Pair<TaskEntity, TaskEntity>>> getIntersectionById(List<TaskEntity> lhs, List<TaskEntity> rhs) {
+    public static List<TaskEntity> getNonIntersectionById(List<TaskEntity> lhs, List<TaskEntity> rhs) {
         List<TaskEntity> nonintersections = new ArrayList<>();
-        List<Pair<TaskEntity, TaskEntity>> intersections = new ArrayList<>();
-
         for (TaskEntity lhsSubtask : lhs) {
             boolean flag = true;
             for (TaskEntity rhsSubtask : rhs)
                 if (lhsSubtask.getId().equals(rhsSubtask.getId())) {
                     flag = false;
-                    intersections.add(new ImmutablePair<>(lhsSubtask, rhsSubtask));
                     break;
                 }
             if (flag) {
                 nonintersections.add(lhsSubtask);
             }
         }
-        return new ImmutablePair<>(nonintersections, intersections);
+        return nonintersections;
     }
 }
