@@ -13,15 +13,8 @@ public class InsertParamBps implements BatchPreparedStatementSetter {
 
     private final List<TaskParameter> allParams;
 
-    private Integer id = null;
-
     public InsertParamBps(List<TaskParameter> allParams) {
         this.allParams = allParams;
-    }
-
-    public InsertParamBps(List<TaskParameter> allParams, Integer id) {
-        this.allParams = allParams;
-        this.id = id;
     }
 
     @Override
@@ -29,11 +22,7 @@ public class InsertParamBps implements BatchPreparedStatementSetter {
         preparedStatement.setString(1, allParams.get(i).getType());
         preparedStatement.setString(2, allParams.get(i).getTaskName());
         preparedStatement.setString(3, allParams.get(i).getValue());
-        if (id == null) {
-            preparedStatement.setInt(4, allParams.get(i).getTaskId());
-        } else {
-            preparedStatement.setInt(4, id);
-        }
+        preparedStatement.setInt(4, allParams.get(i).getTaskId());
     }
 
     @Override

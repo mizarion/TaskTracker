@@ -1,7 +1,7 @@
 package com.consist.taskboot.repository;
 
-import com.consist.taskboot.component.ParameterMapper;
-import com.consist.taskboot.component.TaskMapper;
+import com.consist.taskboot.component.mapper.ParameterMapper;
+import com.consist.taskboot.component.mapper.TaskMapper;
 import com.consist.taskboot.component.TaskUtils;
 import com.consist.taskboot.component.separator.EntitySeparator;
 import com.consist.taskboot.component.separator.EntitySeparator.SeparateResult;

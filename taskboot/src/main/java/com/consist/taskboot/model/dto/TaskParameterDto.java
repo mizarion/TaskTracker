@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 public class TaskParameterDto {
-    String type;
-    String taskName;
-    String value;
+    private final String type;
+    private final String taskName;
+    private final String value;
 
     public TaskParameterDto(
             @JsonProperty("type") String type,

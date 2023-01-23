@@ -37,12 +37,4 @@ public interface TaskUtils {
      */
     TaskEntity taskList2Tree(List<TaskEntity> allTasks, List<TaskParameter> allParams, TaskEntity root);
 
-    /**
-     * Находит в переданных множествах НЕ пересечения по id.
-     *
-     * @param lhs Множество из которого проверяются задачи во втором множестве
-     * @param rhs Множество, содержащее проверяемые задачи.
-     * @return Задачи из первого множества, которых нет во втором.
-     */
-    List<TaskEntity> getNonIntersectionById(List<TaskEntity> lhs, List<TaskEntity> rhs);
 }

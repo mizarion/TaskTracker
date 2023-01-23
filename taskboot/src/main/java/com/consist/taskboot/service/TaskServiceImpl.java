@@ -1,6 +1,6 @@
 package com.consist.taskboot.service;
 
-import com.consist.taskboot.component.TaskMapper;
+import com.consist.taskboot.component.mapper.TaskMapper;
 import com.consist.taskboot.model.dto.TaskDto;
 import com.consist.taskboot.model.entity.TaskEntity;
 import com.consist.taskboot.repository.TaskRepository;

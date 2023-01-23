@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("DataFlowIssue")
 class TaskControllerParamIT extends PostgresBaseIT {
 
     @Autowired
@@ -78,8 +79,8 @@ class TaskControllerParamIT extends PostgresBaseIT {
         ResponseEntity<TaskDto> get = taskController.getTaskById(taskDto.getId());
         Assertions.assertEquals(HttpStatus.OK, get.getStatusCode());
         // check
-        Assertions.assertEquals(true, get.getBody().getSubTasks().isEmpty());
-        Assertions.assertEquals(true, get.getBody().getTaskParameters().isEmpty());
+        Assertions.assertTrue(get.getBody().getSubTasks().isEmpty());
+        Assertions.assertTrue(get.getBody().getTaskParameters().isEmpty());
 
         // update
         TaskDto taskDtoParam = new TaskDto(taskDto.getId(), taskDto.getStatus(), taskDto.getTaskName(), params, subtasks);
@@ -94,7 +95,7 @@ class TaskControllerParamIT extends PostgresBaseIT {
         Assertions.assertEquals(taskDtoParam, getUpdated.getBody());
         Assertions.assertEquals(taskDtoParam.getTaskParameters(), getUpdated.getBody().getTaskParameters());
         // check subtask
-        Assertions.assertEquals(false, getUpdated.getBody().getSubTasks().isEmpty());
+        Assertions.assertFalse(getUpdated.getBody().getSubTasks().isEmpty());
         Assertions.assertEquals(subtasks, getUpdated.getBody().getSubTasks());
         Assertions.assertEquals(params, getUpdated.getBody().getSubTasks().get(0).getTaskParameters());
     }

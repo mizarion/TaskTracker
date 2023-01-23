@@ -19,6 +19,7 @@ public class TaskUtilsImpl implements TaskUtils {
      * @param task Корневая задача, с которой начинается обход
      * @return Список всех подзадач для переданного корня
      */
+    @Override
     public List<TaskEntity> taskTree2List(TaskEntity task) {
         List<TaskEntity> list = new ArrayList<>(Collections.singletonList(task));
         for (TaskEntity subtask : task.getSubTasks()) {
@@ -36,6 +37,7 @@ public class TaskUtilsImpl implements TaskUtils {
      * @param task Корневая задача, с которой начинается обход
      * @return Список всех параметров для переданного корня
      */
+    @Override
     public List<TaskParameter> paramTree2List(TaskEntity task) {
         List<TaskParameter> list = new ArrayList<>();
         for (TaskParameter param : task.getTaskParameters()) {
@@ -58,6 +60,7 @@ public class TaskUtilsImpl implements TaskUtils {
      * @param root      Задача, которая является корнем для данной итерации
      * @return Задача, указанная в качестве корня с присвоенным деревом подзадач из списка и параметрами
      */
+    @Override
     public TaskEntity taskList2Tree(List<TaskEntity> allTasks, List<TaskParameter> allParams, TaskEntity root) {
         List<TaskEntity> subtasks = new ArrayList<>();
         for (TaskEntity subtask : allTasks) {
@@ -74,26 +77,4 @@ public class TaskUtilsImpl implements TaskUtils {
         return new TaskEntity(root.getId(), root.getStatus(), root.getTaskName(), parameters, subtasks);
     }
 
-    /**
-     * Находит в переданных множествах НЕ пересечения по id.
-     *
-     * @param lhs Множество из которого проверяются задачи во втором множестве
-     * @param rhs Множество, содержащее проверяемые задачи.
-     * @return Задачи из первого множества, которых нет во втором.
-     */
-    public List<TaskEntity> getNonIntersectionById(List<TaskEntity> lhs, List<TaskEntity> rhs) {
-        List<TaskEntity> nonintersections = new ArrayList<>();
-        for (TaskEntity lhsSubtask : lhs) {
-            boolean flag = true;
-            for (TaskEntity rhsSubtask : rhs)
-                if (lhsSubtask.getId().equals(rhsSubtask.getId())) {
-                    flag = false;
-                    break;
-                }
-            if (flag) {
-                nonintersections.add(lhsSubtask);
-            }
-        }
-        return nonintersections;
-    }
 }

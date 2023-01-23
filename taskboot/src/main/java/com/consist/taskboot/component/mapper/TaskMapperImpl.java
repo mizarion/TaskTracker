@@ -1,4 +1,4 @@
-package com.consist.taskboot.component;
+package com.consist.taskboot.component.mapper;
 
 import com.consist.taskboot.model.Status;
 import com.consist.taskboot.model.dto.TaskDto;
@@ -54,14 +54,6 @@ public class TaskMapperImpl implements TaskMapper {
     public TaskEntity mapRow(ResultSet row, int i) throws SQLException {
         return new TaskEntity(
                 row.getInt("task_id"),
-                Status.valueOf(row.getString("status")),
-                row.getString("name"),
-                row.getInt("parent_id")
-        );
-    }
-
-    public TaskEntity mapRow(ResultSet row) throws SQLException {
-        return new TaskEntity(row.getInt("task_id"),
                 Status.valueOf(row.getString("status")),
                 row.getString("name"),
                 row.getInt("parent_id")

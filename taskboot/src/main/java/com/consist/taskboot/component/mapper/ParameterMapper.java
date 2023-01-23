@@ -1,4 +1,4 @@
-package com.consist.taskboot.component;
+package com.consist.taskboot.component.mapper;
 
 import com.consist.taskboot.model.entity.TaskParameter;
 import org.springframework.jdbc.core.RowMapper;
@@ -8,8 +8,6 @@ import java.sql.SQLException;
 
 public interface ParameterMapper extends RowMapper<TaskParameter> {
 
-    TaskParameter mapRow(ResultSet resultSet, int i) throws SQLException;
-
-    TaskParameter mapRow(ResultSet resultSet) throws SQLException;
+    TaskParameter mapRow(@SuppressWarnings("NullableProblems") ResultSet resultSet, int i) throws SQLException;
 
 }
