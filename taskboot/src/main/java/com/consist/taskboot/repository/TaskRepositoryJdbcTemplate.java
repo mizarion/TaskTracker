@@ -3,12 +3,11 @@ package com.consist.taskboot.repository;
 import com.consist.taskboot.component.ParameterMapper;
 import com.consist.taskboot.component.TaskMapper;
 import com.consist.taskboot.component.TaskUtils;
+import com.consist.taskboot.component.separator.EntitySeparator;
+import com.consist.taskboot.component.separator.EntitySeparator.SeparateResult;
 import com.consist.taskboot.model.entity.TaskEntity;
 import com.consist.taskboot.model.entity.TaskParameter;
-import com.consist.taskboot.repository.batch.DeleteParamBps;
-import com.consist.taskboot.repository.batch.DeleteTaskByIdBps;
-import com.consist.taskboot.repository.batch.InsertParamBps;
-import com.consist.taskboot.repository.batch.InsertTaskBps;
+import com.consist.taskboot.repository.batch.*;
 import com.consist.taskboot.repository.specification.TaskSpecification;
 import com.consist.taskboot.repository.specification.TaskSpecificationById;
 import org.springframework.context.annotation.Primary;
@@ -29,17 +28,20 @@ public class TaskRepositoryJdbcTemplate implements TaskRepository {
     private final NamedParameterJdbcTemplate namedTemplate;
     private final TaskMapper taskMapper;
     private final ParameterMapper paramMapper;
-
     private final TaskUtils taskUtils;
-
+    private final EntitySeparator<TaskParameter> paramSeparator;
+    private final EntitySeparator<TaskEntity> taskSeparator;
 
     public TaskRepositoryJdbcTemplate(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedTemplate,
-                                      TaskMapper taskMapper, ParameterMapper paramMapper, TaskUtils taskUtils) {
+                                      TaskMapper taskMapper, ParameterMapper paramMapper, TaskUtils taskUtils,
+                                      EntitySeparator<TaskParameter> paramSeparator, EntitySeparator<TaskEntity> taskSeparator) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedTemplate = namedTemplate;
         this.taskMapper = taskMapper;
         this.paramMapper = paramMapper;
         this.taskUtils = taskUtils;
+        this.paramSeparator = paramSeparator;
+        this.taskSeparator = taskSeparator;
     }
 
     private static final String SELECT_TASK_RECURSIVE_NAMED = """
@@ -88,37 +90,6 @@ public class TaskRepositoryJdbcTemplate implements TaskRepository {
         jdbcTemplate.batchUpdate(InsertParamBps.SQL, new InsertParamBps(allParams));
     }
 
-    private void updateParams(Integer id, List<TaskParameter> dbParams, List<TaskParameter> newParams) {
-
-        if (newParams.isEmpty()) {
-            jdbcTemplate.update("DELETE FROM taskparameters WHERE task_id = ?", id);
-            return;
-        }
-
-        if (dbParams.isEmpty()) {
-            jdbcTemplate.batchUpdate(InsertParamBps.SQL, new InsertParamBps(newParams, id));
-            return;
-        }
-
-        // удаляем параметры, которых нет в новой версии
-        final List<TaskParameter> deleteParams = new ArrayList<>();
-        for (TaskParameter dbParam : dbParams) {
-            if (!newParams.contains(dbParam)) {
-                deleteParams.add(dbParam);
-            }
-        }
-        jdbcTemplate.batchUpdate(DeleteParamBps.SQL, new DeleteParamBps(id, deleteParams));
-
-        // Вставляем все параметры которых нет в бд
-        final List<TaskParameter> insertParams = new ArrayList<>();
-        for (TaskParameter newParam : newParams) {
-            if (!dbParams.contains(newParam)) {
-                insertParams.add(newParam);
-            }
-        }
-        jdbcTemplate.batchUpdate(InsertParamBps.SQL, new InsertParamBps(insertParams, id));
-    }
-
     @Override
     public void update(TaskEntity taskEntity) {
         List<TaskEntity> dbTasks = taskUtils.taskTree2List(query(new TaskSpecificationById(taskEntity.getId())).get(0));
@@ -128,35 +99,31 @@ public class TaskRepositoryJdbcTemplate implements TaskRepository {
                 param.setTaskId(task.getId());
             }
         }
+        SeparateResult<TaskEntity> separateTask = taskSeparator.separate(dbTasks, newTasks);
         // delete
-        List<TaskEntity> toDelete = taskUtils.getNonIntersectionById(dbTasks, newTasks);
-        jdbcTemplate.batchUpdate(DeleteTaskByIdBps.SQL, new DeleteTaskByIdBps(toDelete));
-
-        // create
-        List<TaskEntity> toInsert = taskUtils.getNonIntersectionById(newTasks, dbTasks);
-        List<TaskParameter> toInsertParams = new ArrayList<>();
-        for (TaskEntity task : toInsert) {
-            toInsertParams.addAll(task.getTaskParameters());
-        }
-
-        jdbcTemplate.batchUpdate(InsertTaskBps.SQL, new InsertTaskBps(toInsert));
-        jdbcTemplate.batchUpdate(InsertParamBps.SQL, new InsertParamBps(toInsertParams));
+        jdbcTemplate.batchUpdate(DeleteTaskByIdBps.SQL, new DeleteTaskByIdBps(separateTask.deleted()));
+        // insert task
+        jdbcTemplate.batchUpdate(InsertTaskBps.SQL, new InsertTaskBps(separateTask.created()));
+        // params for new inserted tasks
+        List<TaskParameter> toInsertParams = separateTask.created().stream()
+                .map(TaskEntity::getTaskParameters)
+                .collect(ArrayList::new, List::addAll, List::addAll);
         // update
-        for (TaskEntity newSubtask : newTasks) {
-            for (TaskEntity dbSubtask : dbTasks)
-                if (newSubtask.getId().equals(dbSubtask.getId())) {
-                    // update params
-                    if (!dbSubtask.getTaskParameters().equals(newSubtask.getTaskParameters())) {
-                        updateParams(newSubtask.getId(), dbSubtask.getTaskParameters(), newSubtask.getTaskParameters());
-                    }
-                    // update task property
-                    if (!dbSubtask.getStatus().equals(newSubtask.getStatus())
-                        || !dbSubtask.getTaskName().equals(newSubtask.getTaskName())) {
-                        jdbcTemplate.update("UPDATE consisttask SET status=?, name=? WHERE task_id=?",
-                                newSubtask.getStatus().name(), newSubtask.getTaskName(), newSubtask.getId());
-                    }
-                }
+        Map.Entry<List<TaskEntity>, List<TaskEntity>> toUpdate = separateTask.updated();
+        List<TaskEntity> dbTaskToUpdate = toUpdate.getKey();
+        List<TaskEntity> newTaskToUpdate = toUpdate.getValue();
+        List<TaskParameter> toDeleteParams = new ArrayList<>();
+        // update params
+        for (int i = 0; i < toUpdate.getValue().size(); i++) {
+            List<TaskParameter> dbParams = dbTaskToUpdate.get(i).getTaskParameters();
+            List<TaskParameter> newParams = newTaskToUpdate.get(i).getTaskParameters();
+            SeparateResult<TaskParameter> separateParams = paramSeparator.separate(dbParams, newParams);
+            toDeleteParams.addAll(separateParams.deleted());  // Параметры из бд, которых нет в новой версии
+            toInsertParams.addAll(separateParams.created());  // Новые параметры которых нет в бд
         }
+        jdbcTemplate.batchUpdate(DeleteParamBps.SQL, new DeleteParamBps(toDeleteParams));
+        jdbcTemplate.batchUpdate(InsertParamBps.SQL, new InsertParamBps(toInsertParams));
+        jdbcTemplate.batchUpdate(UpdateTaskBps.SQL, new UpdateTaskBps(newTaskToUpdate));
     }
 
     @Override
