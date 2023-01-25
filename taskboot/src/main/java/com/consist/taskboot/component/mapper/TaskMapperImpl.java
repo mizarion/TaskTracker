@@ -9,45 +9,30 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class TaskMapperImpl implements TaskMapper {
     @Override
     public TaskEntity mapToTaskEntity(TaskDto task) {
-        List<TaskEntity> subtasks = new ArrayList<>();
-        List<TaskParameter> parameters = new ArrayList<>();
-        for (TaskDto subtask : task.getSubTasks()) {
-            subtasks.add(mapToTaskEntity(subtask));
-        }
-        for (TaskParameterDto parameter : task.getTaskParameters()) {
-            parameters.add(mapToTaskParameter(parameter));
-        }
+        List<TaskEntity> subtasks = task.getSubTasks().stream()
+                .map(this::mapToTaskEntity)
+                .toList();
+        List<TaskParameter> parameters = task.getTaskParameters().stream()
+                .map(p -> new TaskParameter(p.getType(), p.getTaskName(), p.getValue(), task.getId()))
+                .toList();
         return new TaskEntity(task.getId(), task.getStatus(), task.getTaskName(), parameters, subtasks);
     }
 
     @Override
     public TaskDto mapToTaskDto(TaskEntity task) {
-        List<TaskDto> subtasks = new ArrayList<>();
-        List<TaskParameterDto> parameters = new ArrayList<>();
-        for (TaskEntity subtask : task.getSubTasks()) {
-            subtasks.add(mapToTaskDto(subtask));
-        }
-        for (TaskParameter parameter : task.getTaskParameters()) {
-            parameters.add(mapToTaskParameterDto(parameter));
-        }
+        List<TaskDto> subtasks = task.getSubTasks().stream()
+                .map(this::mapToTaskDto)
+                .toList();
+        List<TaskParameterDto> parameters = task.getTaskParameters().stream()
+                .map(p -> new TaskParameterDto(p.getType(), p.getTaskName(), p.getValue()))
+                .toList();
         return new TaskDto(task.getId(), task.getStatus(), task.getTaskName(), parameters, subtasks);
-    }
-
-    @Override
-    public TaskParameter mapToTaskParameter(TaskParameterDto parameter) {
-        return new TaskParameter(parameter.getType(), parameter.getTaskName(), parameter.getValue());
-    }
-
-    @Override
-    public TaskParameterDto mapToTaskParameterDto(TaskParameter parameter) {
-        return new TaskParameterDto(parameter.getType(), parameter.getTaskName(), parameter.getValue());
     }
 
     @Override

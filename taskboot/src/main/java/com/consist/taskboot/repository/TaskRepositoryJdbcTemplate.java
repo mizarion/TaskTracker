@@ -15,10 +15,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 @Primary
@@ -94,11 +91,6 @@ public class TaskRepositoryJdbcTemplate implements TaskRepository {
     public void update(TaskEntity taskEntity) {
         List<TaskEntity> dbTasks = taskUtils.taskTree2List(query(new TaskSpecificationById(taskEntity.getId())).get(0));
         List<TaskEntity> newTasks = taskUtils.taskTree2List(taskEntity);
-        for (TaskEntity task : newTasks) {
-            for (TaskParameter param : task.getTaskParameters()) {
-                param.setTaskId(task.getId());
-            }
-        }
         SeparateResult<TaskEntity> separateTask = taskSeparator.separate(dbTasks, newTasks);
         // delete
         jdbcTemplate.batchUpdate(DeleteTaskByIdBps.SQL, new DeleteTaskByIdBps(separateTask.deleted()));
@@ -130,11 +122,7 @@ public class TaskRepositoryJdbcTemplate implements TaskRepository {
     public void deleteById(Integer id) {
         List<TaskEntity> tasks = namedTemplate.query(SELECT_TASK_RECURSIVE_NAMED, Map.of("id", id), taskMapper);
         int[] ints = jdbcTemplate.batchUpdate(DeleteTaskByIdBps.SQL, new DeleteTaskByIdBps(tasks));
-        int sum = 0;
-        for (int i : ints) {
-            sum += i;
-        }
-        if (sum == 0) {
+        if (Arrays.stream(ints).sum() == 0) {
             throw new IllegalArgumentException("there are no task with id=" + id);
         }
     }
