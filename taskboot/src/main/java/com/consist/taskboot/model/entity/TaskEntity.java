@@ -10,41 +10,39 @@ public class TaskEntity {
     private final Integer id;
     private final Status status;
     private final String taskName;
-    private Integer parentId;
-    private List<TaskParameter> taskParameters = new ArrayList<>();
-    private List<TaskEntity> subTasks = new ArrayList<>();
+    private final Integer parentId;
+    private final List<TaskParameter> taskParameters = new ArrayList<>();
+    private final List<TaskEntity> subTasks = new ArrayList<>();
 
     public TaskEntity(Integer id, Status status, String taskName) {
-        this.id = id;
-        this.status = status;
-        this.taskName = taskName;
+        this(id, status, taskName, List.of(), List.of(), null);
     }
 
     public TaskEntity(Integer id, Status status, String taskName, Integer parentId) {
-        this.id = id;
-        this.status = status;
-        this.taskName = taskName;
-        this.parentId = parentId;
+        this(id, status, taskName, List.of(), List.of(), parentId);
     }
 
     public TaskEntity(Integer id, Status status, String taskName, List<TaskParameter> taskParameters) {
+        this(id, status, taskName, taskParameters, List.of(), null);
+    }
+
+    public TaskEntity(Integer id, Status status, String taskName, List<TaskParameter> taskParameters,
+                      List<TaskEntity> subTasks) {
+        this(id, status, taskName, taskParameters, subTasks, null);
+    }
+
+    public TaskEntity(Integer id, Status status, String taskName, List<TaskParameter> taskParameters,
+                      List<TaskEntity> subTasks, Integer parentId) {
         this.id = id;
         this.status = status;
         this.taskName = taskName;
-        this.taskParameters = taskParameters;
-    }
-
-    public TaskEntity(Integer id, Status status, String taskName,
-                      List<TaskParameter> taskParameters, List<TaskEntity> subTasks) {
-        this.id = id;
-        this.status = status;
-        this.taskName = taskName;
-        this.taskParameters = taskParameters;
-        this.subTasks = subTasks;
-    }
-
-    public void setParent(Integer parentId) {
         this.parentId = parentId;
+        for (TaskParameter param : taskParameters) {
+            this.taskParameters.add(new TaskParameter(param.getType(), param.getTaskName(), param.getValue(), id));
+        }
+        for (TaskEntity subtask : subTasks) {
+            this.subTasks.add(new TaskEntity(subtask.getId(), subtask.getStatus(), subtask.getTaskName(), subtask.taskParameters, subtask.getSubTasks(), id));
+        }
     }
 
     public Integer getId() {

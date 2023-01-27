@@ -5,7 +5,6 @@ import com.consist.taskboot.model.entity.TaskParameter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -21,9 +20,8 @@ public class TaskUtilsImpl implements TaskUtils {
      */
     @Override
     public List<TaskEntity> taskTree2List(TaskEntity task) {
-        List<TaskEntity> list = new ArrayList<>(Collections.singletonList(task));
+        List<TaskEntity> list = new ArrayList<>(List.of(task));
         for (TaskEntity subtask : task.getSubTasks()) {
-            subtask.setParent(task.getId());
             list.addAll(taskTree2List(subtask));
         }
         return list;
@@ -39,14 +37,8 @@ public class TaskUtilsImpl implements TaskUtils {
      */
     @Override
     public List<TaskParameter> paramTree2List(TaskEntity task) {
-        List<TaskParameter> list = new ArrayList<>();
-        for (TaskParameter param : task.getTaskParameters()) {
-            param.setTaskId(task.getId());
-            list.add(param);
-        }
-
+        List<TaskParameter> list = new ArrayList<>(task.getTaskParameters());
         for (TaskEntity subtask : task.getSubTasks()) {
-            subtask.setParent(task.getId());
             list.addAll(paramTree2List(subtask));
         }
         return list;
