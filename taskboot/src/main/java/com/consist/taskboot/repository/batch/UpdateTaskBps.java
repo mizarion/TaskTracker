@@ -19,10 +19,9 @@ public class UpdateTaskBps implements BatchPreparedStatementSetter {
 
     @Override
     public void setValues(PreparedStatement ps, int i) throws SQLException {
-        TaskEntity task = tasks.get(i);
-        ps.setString(1, task.getStatus().name());
-        ps.setString(2, task.getTaskName());
-        ps.setInt(3, task.getId());
+        ps.setString(1, tasks.get(i).getStatus().name());
+        ps.setString(2, tasks.get(i).getTaskName());
+        ps.setInt(3, tasks.get(i).getId());
     }
 
     @Override

@@ -9,7 +9,6 @@ import java.util.List;
 
 public class DeleteParamBps implements BatchPreparedStatementSetter {
 
-
     public static final String SQL = "DELETE FROM taskparameters WHERE task_id = ? AND type=? AND param_name = ? AND value = ?";
 
     private final List<TaskParameter> deleteParams;

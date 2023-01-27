@@ -1,4 +1,4 @@
-package com.consist.taskboot.testcontainers.controller;//package com.consist.task.testcontainers.controller;
+package com.consist.taskboot.testcontainers.controller;
 
 import com.consist.taskboot.controller.TaskController;
 import com.consist.taskboot.testcontainers.config.PostgresBaseIT;

@@ -14,7 +14,6 @@ public class DeleteTaskByIdBps implements BatchPreparedStatementSetter {
 
 
     public DeleteTaskByIdBps(List<TaskEntity> tasks) {
-
         this.tasks = tasks;
     }
 
