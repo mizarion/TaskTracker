@@ -15,7 +15,6 @@ public class RestExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<RequestInfo> defaultErrorHandler(HttpServletRequest req, Exception e) {
-        e.printStackTrace();
         return new ResponseEntity<>(RequestInfo.builder()
                 .method(req.getMethod())
                 .request(req.getContextPath() + req.getServletPath())

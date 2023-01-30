@@ -1,16 +1,17 @@
 package com.consist.taskboot.testcontainers.controller;
 
 import com.consist.taskboot.controller.TaskController;
-import com.consist.taskboot.testcontainers.config.PostgresBaseIT;
 import com.consist.taskboot.model.Status;
 import com.consist.taskboot.model.dto.TaskDto;
-import org.junit.jupiter.api.*;
+import com.consist.taskboot.testcontainers.config.PostgresBaseIT;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.jdbc.Sql;
 
-@Sql({"classpath:schema.sql"})
 class TaskControllerIT extends PostgresBaseIT {
     @Autowired
     private TaskController taskController;

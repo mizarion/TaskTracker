@@ -57,6 +57,9 @@ public class TaskRepositoryJdbcTemplate implements TaskRepository {
             // select tasks
             Integer id = taskSpecificationById.getId();
             List<TaskEntity> tasks = namedTemplate.query(SELECT_TASK_RECURSIVE_NAMED, Map.of("id", id), taskMapper);
+            if (tasks.isEmpty()) {
+                throw new IllegalArgumentException("there are no task with id=" + id);
+            }
             // select params
             List<Integer> taskIds = tasks.stream().map(TaskEntity::getId).toList();
             List<TaskParameter> listParam = namedTemplate.query("SELECT * FROM taskparameters WHERE task_id IN (:ids)",

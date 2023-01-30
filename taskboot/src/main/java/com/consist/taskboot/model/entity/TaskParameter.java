@@ -38,10 +38,6 @@ public class TaskParameter {
         return taskId;
     }
 
-    public void setTaskId(Integer taskId) {
-        this.taskId = taskId;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

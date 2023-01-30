@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("DataFlowIssue")
 @Testcontainers
 class RestTemplateTestContainerIT {
     private static final Integer FREE_ID = 999;
@@ -29,6 +30,7 @@ class RestTemplateTestContainerIT {
         url = buildURI(tomcat);
     }
 
+    @SuppressWarnings("resource")
     @Container
     private static final GenericContainer<?> tomcat = new GenericContainer<>(
             new ImageFromDockerfile()

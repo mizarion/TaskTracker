@@ -3,14 +3,13 @@ package com.consist.taskboot.testcontainers.config;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 
 @SpringBootTest
-@Sql({"classpath:schema.sql"})
 public abstract class PostgresBaseIT {
 
+    @SuppressWarnings("resource")
     @Container
     private final static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:11")
             .withDatabaseName("prop")
