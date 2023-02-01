@@ -171,7 +171,7 @@ class TaskControllerParamIT extends PostgresBaseIT {
         Assertions.assertEquals(newParams, updated.getBody().getTaskParameters());
         // check updates
         newParams.remove(parameterDto);
-        newParams.add(new TaskParameterDto(parameterDto.getType(), "new name5", "100"));
+        newParams.add(new TaskParameterDto(parameterDto.paramType(), "new name5", "100"));
         TaskDto updateTask = new TaskDto(taskDto.getId(), taskDto.getStatus(), taskDto.getTaskName(), newParams);
         Assertions.assertEquals(HttpStatus.ACCEPTED, taskController.updateTask(updateTask).getStatusCode());
         ResponseEntity<TaskDto> updated2 = taskController.getTaskById(updateTask.getId());

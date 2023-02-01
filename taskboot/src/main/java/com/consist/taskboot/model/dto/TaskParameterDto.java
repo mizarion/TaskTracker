@@ -2,17 +2,10 @@ package com.consist.taskboot.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.NotNull;
 
-public record TaskParameterDto(String type, String taskName, String value) {
-    public String getType() {
-        return this.type;
-    }
+public record TaskParameterDto(@JsonProperty("param_type") @NotNull() String paramType,
+                               @JsonProperty("param_name") @NotNull String paramName,
+                               @JsonProperty("param_value") @NotNull String paramValue) {
 
-    public String getTaskName() {
-        return this.taskName;
-    }
-
-    public String getValue() {
-        return this.value;
-    }
 }

@@ -19,7 +19,7 @@ public class TaskMapperImpl implements TaskMapper {
                 .map(this::mapToTaskEntity)
                 .toList();
         List<TaskParameter> parameters = task.getTaskParameters().stream()
-                .map(p -> new TaskParameter(p.getType(), p.getTaskName(), p.getValue(), task.getId()))
+                .map(p -> new TaskParameter(p.paramType(), p.paramName(), p.paramValue(), task.getId()))
                 .toList();
         return new TaskEntity(task.getId(), task.getStatus(), task.getTaskName(), parameters, subtasks);
     }

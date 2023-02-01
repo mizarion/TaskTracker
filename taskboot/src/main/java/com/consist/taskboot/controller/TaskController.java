@@ -1,12 +1,15 @@
 package com.consist.taskboot.controller;
 
 import com.consist.taskboot.component.mapper.TaskMapper;
-
 import com.consist.taskboot.model.dto.TaskDto;
 import com.consist.taskboot.service.TaskService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
+@Validated
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
@@ -25,13 +28,13 @@ public class TaskController {
     }
 
     @PostMapping()
-    public ResponseEntity<Void> postTask(@RequestBody TaskDto taskDto) {
+    public ResponseEntity<Void> postTask(@Valid @RequestBody TaskDto taskDto/*, BindingResult bindingResult*/) {
         taskService.create(taskMapper.mapToTaskEntity(taskDto));
         return ResponseEntity.accepted().build();
     }
 
     @PutMapping()
-    public ResponseEntity<Void> updateTask(@RequestBody TaskDto taskDto) {
+    public ResponseEntity<Void> updateTask(@Valid @RequestBody TaskDto taskDto/*, BindingResult bindingResult*/) {
         taskService.update(taskMapper.mapToTaskEntity(taskDto));
         return ResponseEntity.accepted().build();
     }

@@ -49,9 +49,9 @@ _Подзадача_ - это _задача_, которая является в
   "name": "task40",
   "parameters": [
     {
-      "type": "int",
-      "taskName": "taskparam",
-      "value": "100"
+      "param_type": "int",
+      "param_name": "taskparam",
+      "param_value": "100"
     }
   ],
   "subtasks": [

@@ -3,16 +3,23 @@ package com.consist.taskboot.model.dto;
 import com.consist.taskboot.model.Status;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.Objects;
 
 
 public class TaskDto {
 
+    @NotNull
+    @Positive
     private final Integer id;
     private final Status status;
     private final String taskName;
+    @Valid
     private final List<TaskParameterDto> taskParameters;
+    @Valid
     private final List<TaskDto> subTasks;
 
     public TaskDto(Integer id, Status status, String taskName) {
