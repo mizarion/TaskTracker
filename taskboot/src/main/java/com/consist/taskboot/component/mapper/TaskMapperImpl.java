@@ -30,7 +30,7 @@ public class TaskMapperImpl implements TaskMapper {
                 .map(this::mapToTaskDto)
                 .toList();
         List<TaskParameterDto> parameters = task.getTaskParameters().stream()
-                .map(p -> new TaskParameterDto(p.getType(), p.getTaskName(), p.getValue()))
+                .map(p -> new TaskParameterDto(p.type(), p.taskName(), p.value()))
                 .toList();
         return new TaskDto(task.getId(), task.getStatus(), task.getTaskName(), parameters, subtasks);
     }

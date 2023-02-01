@@ -19,10 +19,10 @@ public class DeleteParamBps implements BatchPreparedStatementSetter {
 
     @Override
     public void setValues(PreparedStatement preparedStatement, int i) throws SQLException {
-        preparedStatement.setInt(1, deleteParams.get(i).getTaskId());
-        preparedStatement.setString(2, deleteParams.get(i).getType());
-        preparedStatement.setString(3, deleteParams.get(i).getTaskName());
-        preparedStatement.setString(4, deleteParams.get(i).getValue());
+        preparedStatement.setInt(1, deleteParams.get(i).taskId());
+        preparedStatement.setString(2, deleteParams.get(i).type());
+        preparedStatement.setString(3, deleteParams.get(i).taskName());
+        preparedStatement.setString(4, deleteParams.get(i).value());
     }
 
     @Override

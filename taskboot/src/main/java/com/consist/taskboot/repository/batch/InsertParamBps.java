@@ -19,10 +19,10 @@ public class InsertParamBps implements BatchPreparedStatementSetter {
 
     @Override
     public void setValues(PreparedStatement preparedStatement, int i) throws SQLException {
-        preparedStatement.setString(1, allParams.get(i).getType());
-        preparedStatement.setString(2, allParams.get(i).getTaskName());
-        preparedStatement.setString(3, allParams.get(i).getValue());
-        preparedStatement.setInt(4, allParams.get(i).getTaskId());
+        preparedStatement.setString(1, allParams.get(i).type());
+        preparedStatement.setString(2, allParams.get(i).taskName());
+        preparedStatement.setString(3, allParams.get(i).value());
+        preparedStatement.setInt(4, allParams.get(i).taskId());
     }
 
     @Override

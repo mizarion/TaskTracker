@@ -62,7 +62,7 @@ public class TaskUtilsImpl implements TaskUtils {
         }
         List<TaskParameter> parameters = new ArrayList<>();
         for (TaskParameter param : allParams) {
-            if (param.getTaskId().equals(root.getId())) {
+            if (param.taskId().equals(root.getId())) {
                 parameters.add(param);
             }
         }

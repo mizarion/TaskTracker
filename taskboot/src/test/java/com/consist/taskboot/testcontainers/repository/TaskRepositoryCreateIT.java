@@ -54,8 +54,8 @@ class TaskRepositoryCreateIT extends PostgresBaseIT {
         // create task with 1 subtask
         taskRepository.create(newTask);
         List<TaskEntity> receivedTasks = taskRepository.query(new TaskSpecificationById(task.getId()));
-        Assertions.assertEquals(subtask, receivedTasks.get(0).getSubTasks().get(0));
-        Assertions.assertEquals(subtasks, receivedTasks.get(0).getSubTasks());
+        Assertions.assertEquals(newTask.subTasks().get(0), receivedTasks.get(0).getSubTasks().get(0));
+        Assertions.assertEquals(newTask.getSubTasks(), receivedTasks.get(0).getSubTasks());
         Assertions.assertEquals(newTask, receivedTasks.get(0));
     }
 
@@ -77,11 +77,11 @@ class TaskRepositoryCreateIT extends PostgresBaseIT {
         taskRepository.create(newTask);
         List<TaskEntity> receivedTasks = taskRepository.query(new TaskSpecificationById(task.getId()));
 
-        Assertions.assertEquals(subsubtask, receivedTasks.get(0).getSubTasks().get(0).getSubTasks().get(0));
-        Assertions.assertEquals(subsubtasks, receivedTasks.get(0).getSubTasks().get(0).getSubTasks());
+        Assertions.assertEquals(subtask.subTasks().get(0), receivedTasks.get(0).subTasks().get(0).subTasks().get(0));
+        Assertions.assertEquals(subtask.subTasks(), receivedTasks.get(0).subTasks().get(0).subTasks());
 
-        Assertions.assertEquals(subtask, receivedTasks.get(0).getSubTasks().get(0));
-        Assertions.assertEquals(subtasks, receivedTasks.get(0).getSubTasks());
+        Assertions.assertEquals(newTask.subTasks().get(0), receivedTasks.get(0).subTasks().get(0));
+        Assertions.assertEquals(newTask.subTasks(), receivedTasks.get(0).subTasks());
         Assertions.assertEquals(newTask, receivedTasks.get(0));
     }
 

@@ -3,7 +3,6 @@ package com.consist.taskboot.model.dto;
 import com.consist.taskboot.model.Status;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,23 +12,16 @@ public class TaskDto {
     private final Integer id;
     private final Status status;
     private final String taskName;
-    private List<TaskParameterDto> taskParameters = new ArrayList<>();
-    private List<TaskDto> subTasks = new ArrayList<>();
+    private final List<TaskParameterDto> taskParameters;
+    private final List<TaskDto> subTasks;
 
     public TaskDto(Integer id, Status status, String taskName) {
-        this.id = id;
-        this.status = status;
-        this.taskName = taskName;
+        this(id, status, taskName, List.of(), List.of());
+
     }
 
-    public TaskDto(Integer id,
-                   Status status,
-                   String taskName,
-                   List<TaskParameterDto> taskParameters) {
-        this.id = id;
-        this.status = status;
-        this.taskName = taskName;
-        this.taskParameters = taskParameters;
+    public TaskDto(Integer id, Status status, String taskName, List<TaskParameterDto> taskParameters) {
+        this(id, status, taskName, taskParameters, List.of());
     }
 
     public TaskDto(@JsonProperty("id") Integer id,
