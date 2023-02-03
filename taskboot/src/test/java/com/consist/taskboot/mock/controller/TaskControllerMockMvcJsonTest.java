@@ -57,6 +57,14 @@ class TaskControllerMockMvcJsonTest {
               "parameters": [],
               "subtasks": []
             }""";
+    private static final String wrongJsonFormatStatus = """
+            {
+              "id": 11,
+              "status": "WRONG STATUS 123",
+              "name": "negative task",
+              "parameters": [],
+              "subtasks": []
+            }""";
     private static final String wrongJsonFormat = """
             {
               "id": 40,
@@ -185,6 +193,26 @@ class TaskControllerMockMvcJsonTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(wrongJsonFormatNegativeId)
+                )
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void createTaskWrongJsonStatus() throws Exception {
+        mockMvc.perform(post("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(wrongJsonFormatStatus)
+                )
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void updateTaskWrongJsonStatus() throws Exception {
+        mockMvc.perform(put("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(wrongJsonFormatStatus)
                 )
                 .andExpect(status().is4xxClientError());
     }

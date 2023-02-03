@@ -1,8 +1,10 @@
+CREATE TYPE status_type AS ENUM ('READY', 'RUNNING', 'FINISHED','CANCELED');
+
 CREATE TABLE IF NOT EXISTS consisttask
 (
-    task_id   int  PRIMARY KEY,
-    name      TEXT not null,
-    status    TEXT not null,
+    task_id   int PRIMARY KEY,
+    name      TEXT        not null,
+    status    status_type not null,
     parent_id int
 );
 

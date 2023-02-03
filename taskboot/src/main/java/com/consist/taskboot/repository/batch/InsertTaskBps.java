@@ -21,7 +21,7 @@ public class InsertTaskBps implements BatchPreparedStatementSetter {
     @Override
     public void setValues(PreparedStatement preparedStatement, int i) throws SQLException {
         preparedStatement.setInt(1, allTasks.get(i).getId());
-        preparedStatement.setString(2, allTasks.get(i).getStatus().name());
+        preparedStatement.setObject(2,allTasks.get(i).getStatus().name(),java.sql.Types.OTHER);
         preparedStatement.setString(3, allTasks.get(i).getTaskName());
         if (allTasks.get(i).getParentId() == null) {
             preparedStatement.setNull(4, Types.INTEGER);
